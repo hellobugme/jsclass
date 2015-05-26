@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MVCDemo</title>
+</head>
+<body>
+<script src="../Class.js"></script>
+<script src="../MVC.js"></script>
+<script src="Clock.js"></script>
+<canvas id='AnalogClock' width='200' height='200' style='border: 1px #ccc solid'>
+    Canvas not supported
+</canvas>
+<canvas id='DigitalClock' width='200' height='200' style='border: 1px #ccc solid'>
+    Canvas not supported
+</canvas>
+<script>
+(function(){
+    var Model = me.hellobug.oop.Model,
+        View = me.hellobug.oop.View,
+        AnalogClock = me.hellobug.oop.display.AnalogClock,
+        DigitalClock = me.hellobug.oop.display.DigitalClock;
+
+    // model
+    var model = new Model();
+    // console.log(model);
+    // alert(model);
+    model.addData("date", null, "dateUpdate");
+    // console.log(model.date);
+
+    // view
+    var view1 = new View(model),
+        view2 = new View(model),
+        analogClock = new AnalogClock("AnalogClock"),
+        digitalClock = new DigitalClock("DigitalClock");
+    view1.addListener("dateUpdate", updateAnalogClock);
+    function updateAnalogClock(){
+        console.log("view1 get model event");
+        analogClock.update(model.get_date());
+    }
+    view2.addListener("dateUpdate", updateDigitalClock);
+    function updateDigitalClock(){
+        console.log("view2 get model event");
+        digitalClock.update(model.get_date());
+    }
+
+    // controller
+    setInterval(function(){
+        console.log("controller update model");
+        model.set_date(new Date());
+    }, 1000);
+    model.set_date(new Date());
+
+    var bool = true;
+    window.onclick = function(){
+        bool = !bool;
+        if(bool){
+            console.info("view add listener");
+            view1.addListener("dateUpdate", updateAnalogClock);
+            view2.addListener("dateUpdate", updateDigitalClock);
+        } else {
+            console.info("view remove listener");
+            view1.removeListener("dateUpdate", updateAnalogClock);
+            view2.removeAllListener();
+        }
+    };
+})();
+</script>
+</body>
+</html>

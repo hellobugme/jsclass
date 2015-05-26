@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ClassDemo</title>
+</head>
+<body>
+<script src="../Class.js"></script>
+<script>
+(function(){
+    var Class = me.hellobug.oop.Class;
+
+    // 创建超类
+    Class("Papa")(function(name, age){
+        this.name = name;
+        this.age = age;
+        this.friends = [];
+
+        var proto = Papa.prototype;
+        if(typeof proto.sayHi != "function"){
+            proto.sayHi = function(){
+                console.log("Hi, my name is " + this.name + ", I am " + this.age + " years old.");
+            };
+            proto.laugh = function(){
+                console.log("hahaha!!");
+            };
+        }
+    });
+
+    // 创建子类
+    Class("Bb").Extends(Papa)(function(name, age){
+        var proto = Bb.prototype;
+        if(typeof proto.cry != "function"){
+            proto.cry = function(){
+                console.log("555~");
+            };
+        }
+    });
+
+    var ivan = new Papa("ivan", 25);
+    ivan.sayHi();
+    
+    var bean = new Papa("bean", 26);
+    bean.sayHi();
+    bean.laugh();
+
+    var ivanb = new Bb("ivanb", 2);
+    ivanb.sayHi();
+    ivanb.cry();
+    
+    ivan.friends.push("bean");
+    ivanb.friends.push("beanb");
+    console.log(ivan.friends);
+    console.log(ivanb.friends);
+
+    // console.log(Bb.prototype);
+    // console.log(ivanb instanceof Bb);
+    // console.log(ivanb instanceof Papa);
+    // console.log(ivanb.constructor === Bb);
+    // console.log(ivanb.constructor === Papa);
+    // alert(ivanb);
+})();
+</script>
+</body>
+</html>
