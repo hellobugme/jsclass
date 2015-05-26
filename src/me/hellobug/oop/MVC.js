@@ -1,59 +1,75 @@
 (function(){
     var Package = me.hellobug.oop.Package;
 
+    // Event
+    Package(me.hellobug.oop)
+    .Class("Event")(function(type, target){
+        this.type = type;
+        this.target = target;
+    });
+
     // EventDispatcher
-    Package("me.hellobug.oop")
+    Package(me.hellobug.oop)
     .Class("EventDispatcher")(function(){
         this.listeners = {};
         var proto = this.nameSpace[this.className].prototype;
         if(typeof proto.addEventListener != "function"){
             proto.addEventListener = function(type, listener){
-                var _ = this.listeners;
-                if(!_[type]){
-                    _[type] = [];
+                if(typeof this.listeners[type] === "undefined"){
+                    this.listeners[type] = [];
                 }
-                if($inArray(listener, _[type]) === -1){
-                    _[type].push(listener);
-                }
+                this.listeners[type].push(listener);
                 return this;
             };
             proto.removeEventListener = function(type, listener){
-                var _ = this.listeners;
-                if(_[type]){
-                    for(var i = 0, len = _[type].length; i < len; i++){
-                        if(_[type][i] === listener) {
-                            _[type].splice(i, 1);
+                if(this.listeners[type] instanceof Array){
+                    var listeners = this.listeners[type]
+                    for(var i = 0, len = listeners.length; i < len; i++){
+                        if(listeners[i] === listener) {
+                            listeners.splice(i, 1);
                         }
                     }
-                }
-                return this;
-            };
-            proto.removeAllEventListener = function(){
-                var _ = this.listeners;
-                for(var type in _){
-                    _[type] = null;
-                    delete _[type];
-                }
-                return this;
-            };
-            proto.dispatchEvent = function(type, args){
-                var _ = this.listeners;
-                if(_[type]){
-                    for(var i = 0, len = _[type].length; i < len; i++){
-                        _[type][i].apply(args);
+                    if(listeners.length === 0){
+                        this.listeners[type] = null;
+                        delete this.listeners[type];
                     }
                 }
                 return this;
+            };
+            proto.dispatchEvent = function(event){
+                if(!event.target){
+                    event.target = this;
+                }
+                if(this.listeners[event.type] instanceof Array){
+                    var listeners = this.listeners[event.type];
+                    for(var i = 0, len = listeners.length; i < len; i++){
+                        listeners[i](event);
+                    }
+                }
+                return this;
+            };
+            proto.hasEventListener = function(type, listener){
+                if(!listener) {
+                    return this.listeners[type] instanceof Array;
+                } else {
+                    return this.listeners[type] && ($inArray(listener, this.listeners[type]) !== -1);
+                }
             };
         }
     });
 
     // Model
-    Package("me.hellobug.oop")
+    Package(me.hellobug.oop)
     .Class("Model")
-    .Extends("me.hellobug.oop.EventDispatcher")(function(){
+    .Extends(me.hellobug.oop.EventDispatcher)(function(){
+        this.super();
         var proto = this.nameSpace[this.className].prototype;
         if(typeof proto.addData != "function"){
+            /**
+             * @param {String}  key         数据名
+             * @param {*}       value       数据值
+             * @param {String}  eventName   数据改变时触发的时间
+             */
             proto.addData = function(key, value, eventName){
                 var self = this;
                 (function(key, value, eventName){
@@ -64,44 +80,61 @@
                     self["set_" + key] = function(value){
                         _ = value;
                         if(eventName){
-                            self.dispatchEvent(eventName);
+                            var event = new me.hellobug.oop.Event(eventName, self);
+                            self.dispatchEvent(event);
                         }
                     };
                 })(key, value, eventName);
                 return this;
-            }
+            };
+            proto.removeData = function(key){
+                this["get_" + key] = null;
+                delete this["get_" + key];
+                this["set_" + key] = null;
+                delete this["set_" + key];
+            };
         }
     });
 
     // View
-    Package("me.hellobug.oop")
+    Package(me.hellobug.oop)
     .Class("View")(function(model){
         this.model = model;
-        this.handles = [];
+        this.listeners = [];
         var proto = this.nameSpace[this.className].prototype;
         if(typeof proto.addListener != "function"){
             proto.addListener = function(eventName, eventHandle){
-                this.model.addEventListener(eventName, eventHandle);
-                this.handles.push([eventName, eventHandle]);
+                this.model.addEventListener(eventName, listener);
+                this.listeners.push([eventName, eventHandle, listener]);
+                var self = this;
+                function listener(){
+                    var event = new me.hellobug.oop.Event(eventName, self);
+                    eventHandle(event);
+                }
                 return this;
             };
             proto.removeListener = function(eventName, eventHandle){
-                this.model.removeEventListener(eventName, eventHandle);
-                var _ = this.handles;
-                for(var i = 0, l = _.length; i < l; i++){
-                    if(_[i][0] === eventName && _[i][1] === eventHandle){
-                        _.splice(i, 1);
+                var listener;
+                for(var i = this.listeners.length - 1; i >= 0; i--){
+                    var _ = this.listeners[i];
+                    if(_[0] === eventName && _[1] === eventHandle){
+                        listener = _[2];
+                        this.listeners.splice(i, 1);
                     }
                 }
+                this.model.removeEventListener(eventName, listener);
                 return this;
             };
-            proto.removeAllListener = function(){
-                var _ = this.handles;
-                for(var i = 0, l = _.length; i < l; i++){
-                    this.model.removeEventListener(_[i][0], _[i][1]);
+            proto.hasListener = function(eventName, eventHandle){
+                var ret = false;
+                for(var i = 0, len = this.listeners.length; i < len; i++){
+                    var _ = this.listeners[i];
+                    if(_[0] === eventName && (!eventHandle || _[1] === eventHandle)){
+                        ret = true;
+                        break;
+                    }
                 }
-                this.handles = [];
-                return this;
+                return ret;
             };
         }
     });

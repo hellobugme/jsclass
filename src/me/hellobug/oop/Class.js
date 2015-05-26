@@ -14,6 +14,9 @@
     Package(myClass.demo).Class("ClassA")(funciton(name){
         // privileged member
         this.name = name;
+        //... other privileged members
+
+        // note: don't use private members in prototype
 
         // ptototype member
         var proto = this.nameSpace[this.className].prototype;
@@ -21,15 +24,18 @@
             proto.particularMothed = function(){
                 //Do something
             };
-            //... other prototype mothed
+            //... other prototype members
         }
-    });
+    })
 
  // Package("myClass.demo").Class("ClassB").Extends("myClass.demo.ClassA")(funciton(name){
  // Class("myClass.demo.ClassB").Extends("myClass.demo.ClassA")(funciton(name){
     Package(myClass.demo).Class("ClassB").Extends(myClass.demo.ClassA)(funciton(name){
-        //...
-    });
+        // call the super class's constructor
+        this.super(name);
+
+        //... override super class's public members, or create new members
+    })
 })();
  *
  */
@@ -50,16 +56,12 @@
         }
 
         function Class(){
-            var proto = Class.prototype;
-            if(proto.superClass){
-                proto.superClass.apply(this, arguments);
-            }
-            proto.constructorFn.apply(this, arguments);
+            Class.prototype.constructorFn.apply(this, arguments);
         };
         Class.prototype = {
             nameSpace : nameSpace,  // 命名空间
             constructor : Class,    // 构造器
-            superClass : null,      // 超类
+            super : null,           // 超类
             className : className,  // 类名
             constructorFn : null,   // 伪构造器函数
             toString : function(){ return "[object " + this.className + "]"; }
@@ -72,8 +74,8 @@
         function initFn(fn){
             var proto = Class.prototype;
             proto.constructorFn = fn;
-            if(!proto.superClass){
-                proto.superClass = Object;
+            if(!proto.super){
+                proto.super = Object;
             }
         }
 
@@ -84,7 +86,7 @@
          */
         initFn.Extends = function(superClass){
             // 单继承
-            if(!Class.prototype.superClass){
+            if(!Class.prototype.super){
                 if(typeof superClass === "string"){
                     superClass = $getDefinitionByName(superClass).classReference;
                 }
@@ -109,7 +111,7 @@
         for(var p in oProto){
             nProto[p] = oProto[p];
         }
-        nProto.superClass = superClass;
+        nProto.super = superClass;
         subClass.prototype = nProto;
     }
 

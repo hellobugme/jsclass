@@ -21,17 +21,20 @@
                 console.log("Hi, my name is " + this.name + ", I am " + this.age + " years old.");
             };
             proto.laugh = function(){
-                console.log("hahaha!!");
+                console.log("2333333~");
             };
         }
     });
 
     // 创建子类
     Class("Bb").Extends(Papa)(function(name, age){
+        // console.log(this.super.prototype.className);
+        this.super(name, age);
+
         var proto = Bb.prototype;
         if(typeof proto.cry != "function"){
             proto.cry = function(){
-                console.log("555~");
+                console.log("55555555~");
             };
         }
     });

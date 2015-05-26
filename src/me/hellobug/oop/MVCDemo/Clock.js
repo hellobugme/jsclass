@@ -87,10 +87,7 @@
 
         context.font = FONT_HEIGHT + 'px Arial';
 
-        var proto = this.nameSpace[this.className].prototype;
-        if(typeof proto.drawCircle != "function"){
-            proto.update = drawClock;
-        }
+        this.update = drawClock;
     });
     
     // 数字时钟
@@ -136,9 +133,6 @@
         context.shadowColor = 'black';
         context.shadowBlur = 1;
 
-        var proto = this.nameSpace[this.className].prototype;
-        if(typeof proto.update != "function"){
-            proto.update = drawClock;
-        }
+        this.update = drawClock;
     });
 })();

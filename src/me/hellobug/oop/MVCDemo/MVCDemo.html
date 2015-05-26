@@ -7,10 +7,10 @@
 <script src="../Class.js"></script>
 <script src="../MVC.js"></script>
 <script src="Clock.js"></script>
-<canvas id='AnalogClock' width='200' height='200' style='border: 1px #ccc solid'>
+<canvas id='analogClockCanvas' width='200' height='200' style='border: 1px #ccc solid'>
     Canvas not supported
 </canvas>
-<canvas id='DigitalClock' width='200' height='200' style='border: 1px #ccc solid'>
+<canvas id='digitalClockCanvas' width='200' height='200' style='border: 1px #ccc solid'>
     Canvas not supported
 </canvas>
 <script>
@@ -29,40 +29,57 @@
 
     // view
     var view1 = new View(model),
-        view2 = new View(model),
-        analogClock = new AnalogClock("AnalogClock"),
-        digitalClock = new DigitalClock("DigitalClock");
-    view1.addListener("dateUpdate", updateAnalogClock);
-    function updateAnalogClock(){
-        console.log("view1 get model event");
-        analogClock.update(model.get_date());
-    }
-    view2.addListener("dateUpdate", updateDigitalClock);
-    function updateDigitalClock(){
-        console.log("view2 get model event");
-        digitalClock.update(model.get_date());
+        view2 = new View(model);
+    view1.target = new AnalogClock("analogClockCanvas");
+    view2.target = new DigitalClock("digitalClockCanvas");
+    view1.addListener("dateUpdate", updateClock);
+    view2.addListener("dateUpdate", updateClock);
+    // view1.name = "view1";
+    // view2.name = "view2";
+    // view1.target.name = "clock1";
+    // view2.target.name = "clock2";
+    function updateClock(event){
+        // console.log(event);
+        var view = event.target,
+            clock = view.target;
+        clock.update(model.get_date());
+        // console.log(event.target.name + " get model event");
     }
 
     // controller
     setInterval(function(){
-        console.log("controller update model");
         model.set_date(new Date());
+        // console.log("controller update model");
     }, 1000);
     model.set_date(new Date());
 
-    var bool = true;
-    window.onclick = function(){
-        bool = !bool;
-        if(bool){
-            console.info("view add listener");
-            view1.addListener("dateUpdate", updateAnalogClock);
-            view2.addListener("dateUpdate", updateDigitalClock);
+    $id("analogClockCanvas").onclick = $id("digitalClockCanvas").onclick = function(event){
+        var canvas = $src(event),
+            view = (canvas.id === "analogClockCanvas") ? view1 : view2,
+            isListening = view.hasListener("dateUpdate");
+        if(isListening){
+            view.removeListener("dateUpdate", updateClock);
+            canvas.style.backgroundColor = 'gray';
         } else {
-            console.info("view remove listener");
-            view1.removeListener("dateUpdate", updateAnalogClock);
-            view2.removeAllListener();
+            view.addListener("dateUpdate", updateClock)
+            canvas.style.backgroundColor = 'white';
         }
     };
+
+    // model.addData("test", null, "testChange");
+    // view1.addListener("testChange", function(event){
+    //     console.log(model.get_test());
+    // });
+    // model.set_test("I am test.");
+    // model.set_test("I am test 233333.");
+
+    function $id(domOrId){
+        return typeof domOrId === "object" ? domOrId : document.getElementById(domOrId);
+    }
+    function $src(event){
+        event = event || window.event;
+        return event.srcElement || event.target;
+    }
 })();
 </script>
 </body>
