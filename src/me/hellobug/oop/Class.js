@@ -32,7 +32,7 @@
  // Class("myClass.demo.ClassB").Extends("myClass.demo.ClassA")(funciton(name){
     Package(myClass.demo).Class("ClassB").Extends(myClass.demo.ClassA)(funciton(name){
         // call the super class's constructor
-        this.super(name);
+        this.Super.prototype.Constructor(name);
 
         //... override super class's public members, or create new members
     })
@@ -56,14 +56,14 @@
         }
 
         function Class(){
-            Class.prototype.constructorFn.apply(this, arguments);
+            Class.prototype.Constructor.apply(this, arguments);
         };
         Class.prototype = {
             nameSpace : nameSpace,  // 命名空间
             constructor : Class,    // 构造器
-            super : null,           // 超类
+            Super : null,           // 超类
             className : className,  // 类名
-            constructorFn : null,   // 伪构造器函数
+            Constructor : null,   // 伪构造器函数
             toString : function(){ return "[object " + this.className + "]"; }
         }
 
@@ -73,9 +73,9 @@
          */
         function initFn(fn){
             var proto = Class.prototype;
-            proto.constructorFn = fn;
-            if(!proto.super){
-                proto.super = Object;
+            proto.Constructor = fn;
+            if(!proto.Super){
+                proto.Super = Object;
             }
         }
 
@@ -86,7 +86,7 @@
          */
         initFn.Extends = function(superClass){
             // 单继承
-            if(!Class.prototype.super){
+            if(!Class.prototype.Super){
                 if(typeof superClass === "string"){
                     superClass = $getDefinitionByName(superClass).classReference;
                 }
@@ -111,7 +111,7 @@
         for(var p in oProto){
             nProto[p] = oProto[p];
         }
-        nProto.super = superClass;
+        nProto.Super = superClass;
         subClass.prototype = nProto;
     }
 

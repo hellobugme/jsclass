@@ -13,7 +13,7 @@
     .Class("EventDispatcher")(function(){
         this.listeners = {};
         var proto = this.nameSpace[this.className].prototype;
-        if(typeof proto.addEventListener != "function"){
+        if(typeof proto.addEventListener !== "function"){
             proto.addEventListener = function(type, listener){
                 if(typeof this.listeners[type] === "undefined"){
                     this.listeners[type] = [];
@@ -62,9 +62,9 @@
     Package(me.hellobug.oop)
     .Class("Model")
     .Extends(me.hellobug.oop.EventDispatcher)(function(){
-        this.super();
+        this.Super.prototype.Constructor();
         var proto = this.nameSpace[this.className].prototype;
-        if(typeof proto.addData != "function"){
+        if(typeof proto.addData !== "function"){
             /**
              * @param {String}  key         数据名
              * @param {*}       value       数据值
@@ -102,7 +102,7 @@
         this.model = model;
         this.listeners = [];
         var proto = this.nameSpace[this.className].prototype;
-        if(typeof proto.addListener != "function"){
+        if(typeof proto.addListener !== "function"){
             proto.addListener = function(eventName, eventHandle){
                 this.model.addEventListener(eventName, listener);
                 this.listeners.push([eventName, eventHandle, listener]);

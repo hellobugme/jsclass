@@ -36,7 +36,7 @@ Use JavaScript Class like ActionScript
  // Class("myClass.demo.ClassB").Extends("myClass.demo.ClassA")(funciton(name){
     Package(myClass.demo).Class("ClassB").Extends(myClass.demo.ClassA)(funciton(name){
         // call the super class's constructor
-        this.super(name);
+        this.Super.prototype.Constructor(name);
 
         //... override super class's public members, or create new members
     })
