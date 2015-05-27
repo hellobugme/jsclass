@@ -65,7 +65,7 @@
             className : className,  // 类名
             Constructor : null,   // 伪构造器函数
             toString : function(){ return "[object " + this.className + "]"; }
-        }
+        };
 
         /**
          * 初始化入口
@@ -74,9 +74,6 @@
         function initFn(fn){
             var proto = Class.prototype;
             proto.Constructor = fn;
-            if(!proto.Super){
-                proto.Super = Object;
-            }
         }
 
         /**
