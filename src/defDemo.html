@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ClassDemo</title>
+</head>
+<body>
+<script src="def.js"></script>
+<script>
+(function(){
+
+    def("Person")({
+        init : function(name){
+            this.name = name;
+        },
+        getName : function(){
+            return this.name;
+        }
+    });
+
+    def("User") < Person({
+        init : function(name, password){
+            this._super();
+            this.password = password;
+        },
+        getPassword : function(){
+            return this.password;
+        }
+    });
+
+    var nameSpace = {};
+    def(nameSpace, "Man") < Person({
+        init : function(){
+            this._super();
+        }
+    });
+
+    var user = new User('ivan', 'test123456');
+    console.log(user);
+
+    var man = new nameSpace.Man("ivan");
+    console.log(man);
+
+
+    //========================================
+    
+    function deff(name){
+        console.log("def(" + name + ") called");
+        var obj = {
+            valueOf : function(){
+                console.log(name + " (valueOf)");
+            }
+        };
+        return obj;
+    }
+    // '<'操作符强制两边计算自身，从而调用自己的valueOf方法
+    deff("User") < deff("Person");
+
+})();
+</script>
+</body>
+</html>

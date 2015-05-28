@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ClassDemo</title>
+</head>
+<body>
+<script src="Sugar.js"></script>
+<script>
+(function(){
+
+    function Person(name){
+        this.name = name;
+    }
+    Person.method('getName', function(){
+        return name;
+    });
+
+    function User(name, password){
+        this.name = name;
+        this.password = password;
+    }
+    User.inherits(Person);
+    User.method('getPassword', function(){
+        return this.password;
+    });
+    User.method('getName', function(){
+        return "My name is: " + this.uber('getName');
+    })
+
+    var user = new User('ivan', 'test123456');
+    console.log(user);
+    
+})();
+</script>
+</body>
+</html>

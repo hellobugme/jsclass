@@ -6,8 +6,8 @@
  eg:
 (function(){
     window.myClass = { demo : {} }; // namespace
-    var Package = me.hellobug.oop.Package,
-        Class = me.hellobug.oop.Class;
+    var Package = me.hellobug.Package,
+        Class = me.hellobug.Class;
 
  // Package("myClass.demo").Class("ClassA")(funciton(name){
  // Class("myClass.demo.ClassA")(funciton(name){
@@ -32,15 +32,15 @@
  // Class("myClass.demo.ClassB").Extends("myClass.demo.ClassA")(funciton(name){
     Package(myClass.demo).Class("ClassB").Extends(myClass.demo.ClassA)(funciton(name){
         // call the super class's constructor
-        this.Super.prototype.Constructor(name);
+        this.Super.Constructor(name);
 
         //... override super class's public members, or create new members
     })
 })();
  *
  */
-(function(){
-    var libNS = $nameSpace("me.hellobug.oop");
+(function(libNameSpace){
+    var libNS = $nameSpace(libNameSpace);
     if(!!libNS.Class) return;
 
     /**
@@ -61,9 +61,10 @@
         Class.prototype = {
             nameSpace : nameSpace,  // 命名空间
             constructor : Class,    // 构造器
-            Super : null,           // 超类
+            superClass : null,      // 超类
+            Super : null,           // 超类原型
             className : className,  // 类名
-            Constructor : null,   // 伪构造器函数
+            Constructor : null,     // 伪构造器函数
             toString : function(){ return "[object " + this.className + "]"; }
         };
 
@@ -74,6 +75,10 @@
         function initFn(fn){
             var proto = Class.prototype;
             proto.Constructor = fn;
+            if(!proto.Super){
+                proto.superClass = Object;
+                proto.Super = Object.prototype;
+            }
         }
 
         /**
@@ -108,7 +113,8 @@
         for(var p in oProto){
             nProto[p] = oProto[p];
         }
-        nProto.Super = superClass;
+        nProto.superClass = superClass;
+        nProto.Super = superClass.prototype;
         subClass.prototype = nProto;
     }
 
@@ -161,4 +167,4 @@
             }
         }
     };
-})();
+})("me.hellobug");

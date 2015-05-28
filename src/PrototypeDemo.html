@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ClassDemo</title>
+</head>
+<body>
+<script src="Prototype.js"></script>
+<script>
+(function(){
+
+    var Person = Class.create();
+    Object.extend(Person.prototype, {
+        initialize : function(name){
+            this.name = name;
+        },
+        getName : function(){
+            return this.name;
+        }
+    });
+
+    var User = Class.create();
+    User.prototype = Object.extend(new Person(), {
+        initialize : function(name, password){
+            this.name = name;
+            this.password = password;
+        },
+        getPassword : function(){
+            return this.password;
+        }
+    });
+
+    var user = new User('ivan', 'test123456');
+    console.log(user);
+    
+})();
+</script>
+</body>
+</html>

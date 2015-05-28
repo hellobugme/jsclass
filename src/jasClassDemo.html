@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ClassDemo</title>
+</head>
+<body>
+<script src="jasClass.js"></script>
+<script>
+(function(){
+
+    var Package = me.hellobug.Package;
+
+    var myNameSpace = {};
+
+    Package(myNameSpace).Class("Person")(function(name){
+        this.name = name;
+        var proto = this.constructor.prototype;
+        if(typeof proto.getName !== "function"){
+            proto.getName = function(){
+                return this.name;
+            };
+        }
+    });
+
+    Package(myNameSpace).Class("User")
+    .Extends(myNameSpace.Person)(function(name, password){
+        this.Super.Constructor(name);
+        this.password = password;
+        var proto = this.constructor.prototype;
+        if(typeof proto.getPassword !== "function"){
+            proto.getPassword = function(){
+                return this.password;
+            };
+        }
+    });
+
+    Package(myNameSpace).Class("User2")
+    .Extends(myNameSpace.User)(function(name, password, password2){
+        this.Super.Constructor(name, password);
+        this.password2 = password2;
+        var proto = this.constructor.prototype;
+        if(typeof proto.getPassword2 !== "function"){
+            proto.getPassword2 = function(){
+                return this.password2;
+            };
+        }
+    });
+
+    var user = new myNameSpace.User2('ivan', 'test123456', 'abc123');
+    console.log(user);
+    
+})();
+</script>
+</body>
+</html>
