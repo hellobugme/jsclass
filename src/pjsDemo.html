@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ClassDemo</title>
+</head>
+<body>
+<script src="p.js"></script>
+<script>
+(function(){
+
+    var Person = P(function(proto, superProto){
+        proto.init = function(name){
+            this.name = name;
+        };
+        proto.getName = function(){
+            return this.name;
+        };
+    });
+
+    var User = P(Person, function(user, person){
+        user.init = function(name, password){
+            person.init.call(this, arguments);
+            this.password = password;
+        };
+        user.getPassword = function(){
+            return this.password;
+        };
+    });
+
+    var user = new User('ivan', 'test123456');
+    console.log(user);
+    
+})();
+</script>
+</body>
+</html>

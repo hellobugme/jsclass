@@ -32,7 +32,7 @@
  // Class("myClass.demo.ClassB").Extends("myClass.demo.ClassA")(funciton(name){
     Package(myClass.demo).Class("ClassB").Extends(myClass.demo.ClassA)(funciton(name){
         // call the super class's constructor
-        this.Super.Constructor(name);
+        this.Super(name);
 
         //... override super class's public members, or create new members
     })
@@ -57,12 +57,13 @@
 
         function Class(){
             Class.prototype.Constructor.apply(this, arguments);
-        };
+            extendProtoMethod();
+        }
         Class.prototype = {
             nameSpace : nameSpace,  // 命名空间
             constructor : Class,    // 构造器
             superClass : null,      // 超类
-            Super : null,           // 超类原型
+            Super : base,           // 调用父类同名方法
             className : className,  // 类名
             Constructor : null,     // 伪构造器函数
             toString : function(){ return "[object " + this.className + "]"; }
@@ -75,10 +76,32 @@
         function initFn(fn){
             var proto = Class.prototype;
             proto.Constructor = fn;
-            if(!proto.Super){
+            if(!proto.superClass){
                 proto.superClass = Object;
-                proto.Super = Object.prototype;
             }
+            extendProtoMethod();
+        }
+
+        // 在每个原型方法上添加2个自定义属性，保存其名字与当前类
+        function extendProtoMethod(){
+            var proto = Class.prototype, prop;
+            for(var key in proto){
+                prop = proto[key];
+                if((typeof prop === "function") && !prop._name){
+                    prop._name = key;
+                    prop._class = Class;
+                    // console.log(Class.prototype.className, key);
+                }
+            }
+        }
+
+        // 调用父类同名方法
+        function base(){
+            // 取得调用 this.Super() 这个函数本身，如果是在init内，那么就是当前类
+            var caller = arguments.callee.caller;
+            // 执行父类的同名方法，有2种形式，一是用户自己传，二是只能取当前函数的参数
+            return caller._class.prototype.superClass.prototype[caller._name]
+                .apply(this, arguments.length ? arguments : caller.arguments);
         }
 
         /**
@@ -88,33 +111,29 @@
          */
         initFn.Extends = function(superClass){
             // 单继承
-            if(!Class.prototype.Super){
+            if(!Class.prototype.superClass){
                 if(typeof superClass === "string"){
                     superClass = $getDefinitionByName(superClass).classReference;
                 }
                 inheritPrototype(Class, superClass);
             }
             return initFn;
-        }
+        };
 
         nameSpace[className] = Class;
         return initFn;
     }
 
     // 寄生组合继承
-    function object(o){
-        function Prototype(){}
-        Prototype.prototype = o;
-        return new Prototype();
-    }
+    function Prototype(){}
     function inheritPrototype(subClass, superClass){
-        var oProto = subClass.prototype;
-            nProto = object(superClass.prototype);
+        var oProto = subClass.prototype, nProto;
+        Prototype.prototype = superClass.prototype;
+        nProto = new Prototype();
         for(var p in oProto){
             nProto[p] = oProto[p];
         }
         nProto.superClass = superClass;
-        nProto.Super = superClass.prototype;
         subClass.prototype = nProto;
     }
 
@@ -165,6 +184,6 @@
             Class : function(className){
                 return new libNS.Class(className, $nameSpace(ns || window));
             }
-        }
+        };
     };
 })("me.hellobug");
