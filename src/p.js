@@ -1,72 +1,54 @@
 var P = (function(prototype, ownProperty, undefined) {
   return function P(_superclass /* = Object */, definition) {
-    // handle the case where no superclass is given
+    // 如果只有一个参数，表示没有父类
     if (definition === undefined) {
       definition = _superclass;
       _superclass = Object;
     }
 
-    // C is the class to be returned.
-    //
-    // When called, creates and initializes an instance of C, unless
-    // `this` is already an instance of C, then just initializes `this`;
-    // either way, returns the instance of C that was initialized.
-    //
-    //  TODO: the Chrome inspector shows all created objects as `C`
-    //        rather than `Object`.  Setting the .name property seems to
-    //        have no effect.  Is there a way to override this behavior?
+    // C为要返回的子类，init为初始化函数
     function C() {
       var self = this instanceof C ? this : new Bare;
       self.init.apply(self, arguments);
       return self;
     }
 
-    // C.Bare is a class with a noop constructor.  Its prototype will be
-    // the same as C, so that instances of C.Bare are instances of C.
-    // `new MyClass.Bare` then creates new instances of C without
-    // calling .init().
+    // Bare让C不用new就能返回实例
     function Bare() {}
     C.Bare = Bare;
 
-    // Extend the prototype chain: first use Bare to create an
-    // uninitialized instance of the superclass, then set up Bare
-    // to create instances of this class.
+    // 为了防止改动子类影响到父类，所以将父类的原型赋值给中介者Bare，然后再将Bare的实例作为子类的原型
     var _super = Bare[prototype] = _superclass[prototype];
     var proto = Bare[prototype] = C[prototype] = C.p = new Bare;
 
-    // pre-declaring the iteration variable for the loop below to save
-    // a `var` keyword after minification
     var key;
 
-    // set the constructor property on the prototype, for convenience
+    // 修正子类的构造器函数，使其指向自身
     proto.constructor = C;
 
     C.extend = function(def) { return P(C, def); }
 
     return (C.open = function(def) {
+      // 如果def是函数，则直接调用，并传入子类原型、父类原型、子类构造器、父类构造器
       if (typeof def === 'function') {
-        // call the defining function with all the arguments you need
-        // extensions captures the return value.
         def = def.call(C, proto, _super, C, _superclass);
       }
 
-      // ...and extend it
+      // 如果def是对象，则是子类的扩展包，将其属性添加到子类原型
       if (typeof def === 'object') {
         for (key in def) {
+          // ownProperty其实就是传入的Object.hasOwnProperty
           if (ownProperty.call(def, key)) {
             proto[key] = def[key];
           }
         }
       }
 
-      // if no init, assume we're inheriting from a non-Pjs class, so
-      // default to using the superclass constructor.
+      // 确保有初始化函数可以调用
       if (!('init' in proto)) proto.init = _superclass;
 
       return C;
     })(definition);
   }
 
-  // as a minifier optimization, we've closured in a few helper functions
-  // and the string 'prototype' (C[p] is much shorter than C.prototype)
 })('prototype', ({}).hasOwnProperty);

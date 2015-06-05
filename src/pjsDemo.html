@@ -8,15 +8,17 @@
 <script>
 (function(){
 
+    // 将一个函数传给P，P会先创建一个类，然后后调用该函数，并将创建的类的原型和父类原型传入，所以在该函数中可以通过第一个参数来给类添加原型成员
     var Person = P(function(proto, superProto){
+        // init为初始化函数，P会在完成类的处理后自动调用该方法
         proto.init = function(name){
+            // 添加特权成员
             this.name = name;
         };
         proto.getName = function(){
             return this.name;
         };
     });
-
     var User = P(Person, function(user, person){
         user.init = function(name, password){
             person.init.call(this, arguments);
